@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+<title>手机音乐播放器</title>
+
+<script type="text/javascript">
+	document.getElementsByTagName("html")[0].style.fontSize = document.documentElement.clientWidth/10 + "px";
+</script>
+<style type="text/css">
+	*{
+		margin:0;
+		padding:0;
+	}
+	@font-face {font-family: 'iconfont';
+    src: url('iconfont/iconfont.eot'); /* IE9*/
+    src: url('iconfont/iconfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('iconfont/iconfont.woff') format('woff'), /* chrome、firefox */
+    url('iconfont/iconfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url('iconfont/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+	}
+	.iconfont{
+	float: left;
+    font-family:"iconfont" !important;
+    margin: 0.5rem;
+    font-size:1.5rem;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;}
+	body{
+		background: url("images/bg.jpg");
+		font-size: 0.5rem;
+	}
+	header{
+		width: 10rem;
+		height: 2rem;
+		color: #fff;
+		text-align: center;
+		
+	}
+	h3{
+		line-height: 1.3rem;
+	}
+	.singer{
+		width: 8rem;
+		height: 8rem;
+		border: 2px solid #fff;
+		border-radius: 50%;
+		margin: auto;
+	}
+	.singer.rotate{
+		 animation: rot 10s linear infinite;//CSS3自定义动画:动画名称 时间 匀速 无限重复
+	}
+	@keyframes rot{
+		from{transform:rotate(0deg)}
+		to{transform:rotate(360deg)}
+		
+	}
+	.singer div{
+		width: 7.6rem;
+		height: 7.6rem;
+		border-radius: 50%;
+		background: rgba(255,255,255,0.3);
+		margin:0.2rem;
+	}
+	.singer img{
+		width: 7rem;
+		height: 7rem;
+		border-radius: 50%;
+		margin: 0.3rem;
+	}
+	.progress{
+		width: 9rem;
+		height: 0.1rem;
+		background: #c03;
+		margin: 1rem auto;
+	}
+	.bar{
+		width: 0.2rem;
+		height: 0.2rem;
+		background: #fff;
+		border-radius: 50%;
+		transform: translate(0px,-0.15rem);
+	}
+	.pro-bg{
+		width: 0px;
+		height: 0.1rem;
+		background: #0f9;
+	}
+	.btn{
+		width: 7.7rem;
+		margin: auto;
+		color: #fff;
+	}
+	.pause{
+		display: none;
+	}
+</style>
+</head>
+<body>
+	<header>
+		<h3 id="songname">真感觉</h3>
+		<p id="singername">陈慧琳</p>
+	</header>
+	<section class="singer">
+		<div>
+			<img src="images/tx.jpg">
+		</div>
+	</section>
+	<section class="progress">
+		<div class="pro-bg"></div>
+		<div class="bar"></div>
+	</section>
+	<section class="btn">
+		<div class="iconfont prev">&#xe6de;</div>
+		<div class="iconfont play">&#xe60d;</div>
+		<div class="iconfont pause">&#xe6ad;</div>
+		<div class="iconfont next">&#xe6dd;</div>
+	</section>
+	
+	<audio src="mp3/0.mp3" id="music"></audio>
+	
+	<script type="text/javascript">
+		var oPrev = document.getElementsByClassName("prev")[0];
+		var oPlay = document.getElementsByClassName("play")[0];
+		var oNext = document.getElementsByClassName("next")[0];
+		var oPause = document.getElementsByClassName("pause")[0];
+		var singer = document.getElementsByClassName("singer")[0];
+		var myMusic = document.getElementById("music");
+		var oProgress = document.getElementsByClassName("progress")[0];
+		var oProbg = document.getElementsByClassName("pro-bg")[0];
+		var oBar = document.getElementsByClassName("bar")[0];
+		var songs = new Array("陈慧琳 - 真感觉","王菲 - 爱不可及","迪克牛仔 - 三万英尺","薛之谦 - 丑八怪");
+		var songname = document.getElementById("songname");
+		var singername = document.getElementById("singername");
+		/* var onOff = true;
+		oPlay.onclick = function(){
+			if(onOff){
+				myMusic.play();//播放
+			}else{
+				myMusic.pause();//暂停
+			}
+			onOff = !onOff;
+		} */
+		
+		oPlay.onclick = function(){
+			myMusic.play();
+			this.style.display = "none";
+			oPause.style.display = "block";
+			singer.className = "singer rotate"
+			//document.getElementsByClassName("rotate")[0].style.animation = "rot "+myMusic.duration+"s linear infinite";
+		}
+		
+		oPause.onclick = function(){
+			myMusic.pause();
+			this.style.display = "none";
+			oPlay.style.display = "block";
+			singer.className = "singer";
+			
+		}
+		
+		var w = oProgress.offsetWidth - oBar.offsetWidth;
+		var x = 0;
+		var i = 0;
+		myMusic.addEventListener("timeupdate", function(){
+			var s = this.currentTime/this.duration;//播放时间/总时长
+			x = s * w;
+			oProbg.style.width = x + "px";
+			oBar.style.transform = "translate("+x+"px,-0.15rem)";
+			
+			//
+			if(this.currentTime == this.duration){
+				i++;
+				if(i>songs.length-1){
+					i = 0;
+				}
+				playThis();
+			}
+		})
+		
+		var l = 0,x0=0;
+		oBar.addEventListener("touchstart",function(e){
+			x0 = e.changedTouches[0].pageX;//
+			
+			document.addEventListener("touchmove", move, false);
+			document.addEventListener("touchend", function(){
+				l = x;
+				document.removeEventListener("touchmove",move);
+			})
+		})
+		
+		function move(e){
+			x = e.changedTouches[0].pageX - x0 + l;
+			if(x<0){
+				x = 0;
+			}else if(x>w){
+				x = w;
+			}
+			
+			oProbg.style.width = x + "px";
+			oBar.style.transform = "translate("+x+"px,-0.15rem)";
+			
+			myMusic.currentTime = x/w * myMusic.duration;
+		}
+		
+		
+		//上一首
+		oPrev.onclick = function(){
+			i--;
+			if(i<0){
+				i = songs.length-1;
+			}
+			playThis();
+		}
+		//下一首
+		oNext.onclick = function(){
+			i++;
+			if(i>songs.length-1){
+				i = 0;
+			}
+			playThis();
+		}
+		
+		
+		//播放指定第几首歌曲
+		function playThis(){
+			myMusic.setAttribute("src","mp3/"+ i + ".mp3");
+			var ss = songs[i].split(" - ");
+			singername.innerText = ss[0];
+			songname.innerText = ss[1];
+			//alert(songs[i]);
+			myMusic.play();
+			oPlay.style.display = "none";
+			oPause.style.display = "block";
+			singer.className = "singer rotate"
+		}
+	</script>
+</body>
+</html>
